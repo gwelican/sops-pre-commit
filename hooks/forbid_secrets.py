@@ -6,6 +6,7 @@ import sys
 
 SECRET_REGEX = r"^kind:\ssecret$"
 SOPS_REGEX = r"ENC.AES256"
+AVP_REGEX = r"<path:>"
 KUSTOMIZE_REGEX = r"^\$patch:\sdelete"
 
 def contains_secret(filename):
@@ -15,9 +16,9 @@ def contains_secret(filename):
             SECRET_REGEX, lines, flags=re.IGNORECASE | re.MULTILINE
         )
         if kubernetes_secret:
-            ignore_secret = re.findall(
-                SOPS_REGEX, lines, flags=re.IGNORECASE | re.MULTILINE
-            ) or re.findall(KUSTOMIZE_REGEX, lines, flags=re.IGNORECASE | re.MULTILINE)
+            ignore_secret = re.findall(SOPS_REGEX, lines, flags=re.IGNORECASE | re.MULTILINE)
+            or re.findall(KUSTOMIZE_REGEX, lines, flags=re.IGNORECASE | re.MULTILINE) 
+            or re.findall(AVP_REGEX, lines, flags=re.IGNORECASE | re.MULTILINE)
             if not ignore_secret:
                 return True
     return False
